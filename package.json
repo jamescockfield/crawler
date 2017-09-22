@@ -1,0 +1,26 @@
+{
+  "name": "crawler",
+  "version": "1.0.0",
+  "description": "website crawler and email extractor",
+  "main": "crawler.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamescockfield/crawler.git"
+  },
+  "keywords": [
+    "crawler",
+    "email",
+    "extractor",
+    "web",
+    "crawler"
+  ],
+  "author": "james cockfield",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jamescockfield/crawler/issues"
+  },
+  "homepage": "https://github.com/jamescockfield/crawler#readme"
+}
