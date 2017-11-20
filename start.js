@@ -3,33 +3,40 @@ const request = require("request"),
 	spreadsheet = require("./spreadsheet"),
 	crawler = require("./crawler");
 	
-
-function start(file, data, logging, ws) {
-
-	spreadsheet.read(file, function(variables, logging) {
-
+/**
+ * Check if we need to scrape emails, or just extract websites from houzz first
+ * then send appropriate task to sendRequests
+ * 
+ * @param string file, the filepath of the spreadsheet to read (.csv or .xlsx)
+ */
+function start(file, data, logging, ws)
+{
+	spreadsheet.read(file, function(variables)
+	{
 		var houzzCount = 0,
-			eachRow;
+			eachRow,
+			maxCount = 7
 
-		for (var i = 2; i < 7; i++) {
-
-			if (variables.worksheet.getRow(i).getCell(variables.websiteColumn).value.indexOf("houzz") >= 0) {
-				houzzCount++;
-			}
+		for (var i = 2; i < maxCount; i++)
+		{
+			if (variables.worksheet.getRow(i).getCell(variables.websiteColumn).value === null &&
+				maxCount < variables.worksheet.rowCount) maxCount++
+				
+			else if (variables.worksheet.getRow(i).getCell(variables.websiteColumn).value.indexOf("houzz") >= 0) houzzCount++;
 		}
 
-		if (houzzCount > 2) {
-
+		if (houzzCount > 2)
+		{
 			variables.appendix = "websites";
 			eachRow = scrapeHouzz;
 			variables.resultColumn = variables.websiteColumn;
-		} else {
-
+		}
+		else
+		{
 			variables.appendix = "emails";
 			eachRow = extractEmails;
 			variables.resultColumn = variables.worksheet.getRow(1).values.indexOf("email");
 		}
-
 		spreadsheet.sendRequests(variables, eachRow);
 	}, data, logging, ws);
 }

@@ -1,14 +1,20 @@
 const crawler = require("./crawler");
-// ERR WEBSITES
-// http://www.morettiinteriordesign.com
-// http://www.playinteriordesign.com
-// http://elladewastney.co.uk/
 
-// http://www.vanessabuirskiinteriors.com
+// Regression Suite
+var cases = 
+[
+	"http://www.morettiinteriordesign.com",
+	"http://www.playinteriordesign.com",
+	"http://elladewastney.co.uk/",
+	"http://www.vanessabuirskiinteriors.com",
+	"http://www.crystalstone.co.uk/",
+	"http://www.jeffreyhitchcock.com",
+	"http://www.eurofurniture.com",
+	"http://harken-interiors.com"
+];
 
-// http://www.crystalstone.co.uk/
-// http://www.jeffreyhitchcock.com
-
-var test = new crawler.Crawler("http://www.crystalstone.co.uk/");
-
-test.firstPage();
+for (var i in cases)
+{
+	var test = new crawler.Crawler(cases[i]);
+	test.firstPage();
+}
