@@ -80,7 +80,7 @@ exports.Crawler = function(url, callback, logging)
 
 			if (match !== null)
 			{
-				scope.logging("FOUND ON FIRST PAGE:",match);
+				// scope.logging("FOUND ON FIRST PAGE:",match);
 				scope.callback(match);
 				return;
 			}
@@ -119,7 +119,6 @@ exports.Crawler = function(url, callback, logging)
 		{
 			if (sitemap[i].match(/contact/i) !== null)
 			{
-				scope.logging("FOUND CONTACT PAGE", sitemap[i]);
 				scope.contactPage(sitemap[i]);
 				return;
 			}
@@ -165,11 +164,7 @@ exports.Crawler = function(url, callback, logging)
 					var result = scope.finalRequestResults[requestKeys[i]];
 				}
 
-				if (result)
-				{
-					scope.logging("FOUND ON FINAL PAGE: ",result,scope.url);
-					scope.callback(result);
-				}
+				if (result) scope.callback(result);
 				else if (forced) scope.callback("NO EMAIL FOUND IN SITEMAP");
 				else
 				{
@@ -208,11 +203,7 @@ exports.Crawler = function(url, callback, logging)
 
 			var match = scope.search(html);
 
-			if (match !== null)
-			{
-				scope.logging("FOUND EMAIL FROM CONTACT:",match);
-				scope.callback(match);
-			}
+			if (match !== null) scope.callback(match);
 			else scope.callback("CONTACT FORM");
 		}]);
 	}

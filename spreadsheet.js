@@ -10,7 +10,7 @@ const exceljs = require("exceljs"),
  */
 function read(path, callback, data, logging, ws)
 {
-	var logging = logging || console.log;
+	if (typeof logging === "undefined") var logging = console.log;
 
 	// Read both csv and xlsx
 	var extension = path.split(".");
@@ -19,7 +19,7 @@ function read(path, callback, data, logging, ws)
 	var workbook = new exceljs.Workbook();
 
 	// Open spreadsheet
-	logging("READING SPREADSHEET:",path);
+	logging("Reading spreadsheet:",path);
 
 	if (typeof data === "undefined")
 	{
@@ -41,7 +41,7 @@ function read(path, callback, data, logging, ws)
 
 	workbook[extension][readFunction](file).then(function()
 	{
-		logging("OPENED WORKBOOK");
+		logging("Opened workbook!");
 
 		//BUILD GLOBAL VARIABLES
 		var worksheet = workbook.getWorksheet(1);
@@ -68,9 +68,9 @@ function read(path, callback, data, logging, ws)
  */
 function sendRequests(variables, eachRow) {
 
-	variables.logging("ROW COUNT:", variables.worksheet.rowCount);
+	variables.logging("Row count:", variables.worksheet.rowCount + "\n");
 
-	variables.logging("STARTING WEBSITE REQUESTS"); // Start building crawlers
+	variables.logging("Starting website requests..."); // Start building crawlers
 
 	var row = 2;
 	var set = setInterval(function()
@@ -93,11 +93,11 @@ function waitResults(variables)
 {
 	var waitCount = 1,
 		maxWaits = 100,
-		resultCount;
+		resultCount = 0;
 
 	var checkInterval = setInterval(function()
 	{
-		variables.logging(Object.keys(variables.results).length.toString(), "RESPONSES OF", variables.worksheet.rowCount - 1, "PROSPECTS ( Try",waitCount,"of",maxWaits,")");
+		progress(resultCount, variables.worksheet.rowCount - 1, waitCount, maxWaits);
 
 		if (resultCount === Object.keys(variables.results).length) waitCount++;
 		else waitCount = 1;
@@ -116,6 +116,32 @@ function waitResults(variables)
 			add(variables, variables.logging);
 		}
 	},1000);
+}
+
+/**
+ * Logs the current progress to the terminal
+ *
+ * @param int resultCount, the number of responses received
+ * @param int rowCount, the total number of requests to send
+ * @param int waitCount, the current request wait count
+ * @param int maxWaits, the max number of seconds to wait for requests
+ */
+function progress(resultCount, rowCount, waitCount, maxWaits)
+{
+	var progressBar = "",
+		n = Math.floor(resultCount / rowCount * 35);
+	for (var i = 0; i < n; i++) progressBar += "#";
+	for (var i = 35; i >= n; i--) progressBar += "-";
+
+	var line = "Responses: |" + progressBar + "| " + resultCount + " / " + 
+		rowCount + " ( Attempt " + waitCount + " / " + maxWaits + " )\n";
+
+	if (variables.logging === console.log)
+	{
+		process.stdout.write("\033[1A\033[2K");
+		process.stdout.write(line);
+	}
+	else variables.logging(line);
 }
 
 /**
@@ -166,9 +192,13 @@ function write(workbook)
 	var fileNameToWrite = variables.fileName.replace(/(_websites)*(.xlsx|.csv)$/gi, "_" + variables.appendix + ".csv");
 	variables.logging("writing to file",fileNameToWrite);
 
-	if (variables.logging !== console.log)
+	// WEBSOCKET BEING CALLED ON LOCAL SYSTEM BUG:
+	console.log(variables.logging)
+	console.log(console.log);
+	console.log(variables.logging !== console.log);
+
+	if (variables.logging !== console.log) // HTTP REQUEST
 	{
-		// HTTP REQUEST
 		var data = new Writable();
 		data.bufferArr = [Buffer.from("filename=" + fileNameToWrite + "&","utf8")];
 		data._write = function(chunk, encoding, callback)
@@ -178,7 +208,6 @@ function write(workbook)
 		}
 
 		console.log("writing");
-
 		workbook.csv.write(data).then(function()
 		{
 			console.log("write success");
@@ -190,9 +219,8 @@ function write(workbook)
 			else variables.ws.send(Buffer.concat(data.bufferArr)); // Send results to websocket
 		});
 	}
-	else 
-	{
-		// LOCAL FILE SYSTEM
+	else // LOCAL FILE SYSTEM
+	{ 
 		workbook.csv.writeFile(fileNameToWrite).then(function()
 		{
 			variables.logging("finished!");

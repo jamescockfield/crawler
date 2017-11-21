@@ -68,7 +68,6 @@ exports.SitemapCrawler = function()
 		var scope = this;
 		for (var i in sitemap)
 		{
-			console.log("TEST", sitemap[i]);
 			if (sitemap[i].slice(-3, this.length) === "xml" &&
 				sitemap[i] !== url &&
 				scope.sitemapCrawlers.hasOwnProperty(sitemap[i]) === false)
